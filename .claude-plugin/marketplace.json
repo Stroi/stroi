@@ -1,0 +1,27 @@
+{
+  "name": "stroi",
+  "owner": {
+    "name": "valta"
+  },
+  "metadata": {
+    "description": "stroi — a lean, software-development agent harness for Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "stroi",
+      "source": "./",
+      "description": "Lean software-development harness: tiered planning, command-agnostic verification, scoped codebase tspecs with just-in-time docs, and Ratchet-style learning. Harness mechanism only — no domain skills bundled.",
+      "version": "0.1.0",
+      "license": "MIT",
+      "category": "workflow",
+      "tags": [
+        "planning",
+        "verification",
+        "code-review",
+        "harness",
+        "tspec"
+      ],
+      "strict": false
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/guard.sh\""
+          }
+        ],
+        "description": "stroi: deterministically block catastrophic shell commands (rm -rf /, force push, DROP TABLE, ...)"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/tspec-dirty.sh\""
+          }
+        ],
+        "description": "stroi: record touched file paths so tspec staleness can be detected"
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/tspec-stale.sh\""
+          }
+        ],
+        "description": "stroi: flag scopes whose tspec.md is older than code changed under it (silent when clean)"
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/handoff.sh\""
+          }
+        ],
+        "description": "stroi: snapshot a resume pointer for an in-progress plan-big run before compaction"
+      }
+    ]
+  }
+}

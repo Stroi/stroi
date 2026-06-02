@@ -1,0 +1,10 @@
+# OS / editor
+.DS_Store
+*.swp
+
+# Node (only present if a hook/tool ever needs deps; none bundled today)
+node_modules/
+
+# stroi runtime artifacts (written into a *consuming* project, never this repo —
+# ignored here only in case the harness is exercised against hanz itself)
+.stroi/
