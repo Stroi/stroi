@@ -14,12 +14,18 @@ decouple brain/hands/session, Planner→Generator→Evaluator, and ratchet every
 ## Install
 
 ```bash
-# from this repo (local marketplace)
-/plugin marketplace add /path/to/stroi
+# from GitHub (recommended)
+/plugin marketplace add https://github.com/Stroi/stroi
 /plugin install stroi@stroi
+```
 
-# or point Claude Code at the dir directly while iterating
-claude --plugin-dir /path/to/stroi
+While iterating on a local checkout instead:
+
+```bash
+git clone https://github.com/Stroi/stroi
+/plugin marketplace add ./stroi      # the cloned directory
+# or point Claude Code at it directly:
+claude --plugin-dir ./stroi
 ```
 
 Then confirm: `/stroi:plan-fast`, `/stroi:plan-big`, `/stroi:verify`, `/stroi:analyze`,
