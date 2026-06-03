@@ -13,7 +13,7 @@ assuming `npm`. It is also the engine that `stroi-validator` runs.
 Determine the scope (the directory you're working in, or the `$ARGUMENTS` path) and discover
 commands, in this order of preference:
 
-1. **Explicit declarations** in the in-scope `CLAUDE.md` / `tspec.md` (a Commands or
+1. **Explicit declarations** in the in-scope `CLAUDE.md` (the map block's `## Commands`, or a
    build/test/lint section). Prefer these — they are authoritative.
 2. **Manifest + lockfile inference:**
    - **Node/TS** — `package.json` `scripts` → `build`, `typecheck` (or `tsc --noEmit`), `lint`,
@@ -40,7 +40,7 @@ invent one and never fake a pass.
    unintended edits, no accidentally-committed artifacts, error paths handled.
 
 ## Scope skills
-Apply any skills listed under `## Relevant Skills` in the in-scope `tspec.md` — they may add
+Apply any skills listed under `## Relevant Skills` in the in-scope `CLAUDE.md` — they may add
 language/framework-specific checks for this scope.
 
 ## Output — verdict report

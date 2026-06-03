@@ -20,7 +20,7 @@ Turn a lesson into a permanent, traceable control. `$ARGUMENTS` = the rule (e.g.
    - **Prose line** (default) — a rule in `CLAUDE.md` / a memory. Advisory.
    - **Hook** — for a deterministically-detectable violation, a `PreToolUse`/`PostToolUse` guard
      that blocks or warns. Enforcement, not advice — the strongest lever.
-   - **Reviewer check** — add it to the in-scope `tspec.md` `## Code Review` notes (or list a
+   - **Reviewer check** — add it to the in-scope `CLAUDE.md` `## Code Review` notes (or list a
      review skill under `## Relevant Skills`) so `stroi-reviewer` flags it.
 
 ## Reflect mode — `/stroi:learn --review`
@@ -32,5 +32,6 @@ rule + scope + recommended escalation level, and let the user confirm before wri
 ## Rules
 - One rule per capture; keep each line short and checkable.
 - Only ratchet real signal — speculative rules become noise and bloat (the thing stroi exists to avoid).
-- `/stroi:learn` edits **rules** (CLAUDE.md / memory). To edit codebase **description**, use
-  `/stroi:analyze` (tspec.md). Two different jobs.
+- `/stroi:learn` edits the **rules** region of `CLAUDE.md` (or memory). To refresh the codebase
+  **description**, use `/stroi:analyze` (the `CLAUDE.md` map block). Two different jobs, two regions
+  of the same file.

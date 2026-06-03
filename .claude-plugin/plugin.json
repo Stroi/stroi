@@ -1,7 +1,7 @@
 {
   "name": "stroi",
   "version": "0.1.0",
-  "description": "A lean software-development agent harness for Claude Code: tiered planning (plan-fast / plan-big with Planner→Generator→Evaluator orchestration), command-agnostic verification, scoped codebase tspecs with just-in-time docs research, and Ratchet-style learning. Harness mechanism only — bring your own domain skills.",
+  "description": "A lean software-development agent harness for Claude Code: tiered planning (plan-fast / plan-big with Planner→Generator→Evaluator orchestration), command-agnostic verification, scoped codebase maps in CLAUDE.md with just-in-time docs research, and Ratchet-style learning. Harness mechanism only — bring your own domain skills.",
   "author": {
     "name": "valta"
   },
@@ -12,7 +12,7 @@
     "planning",
     "verification",
     "code-review",
-    "tspec",
+    "codebase-map",
     "ratchet",
     "context7",
     "lean"

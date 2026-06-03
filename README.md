@@ -40,7 +40,7 @@ Then confirm: `/stroi:plan-fast`, `/stroi:plan-big`, `/stroi:verify`, `/stroi:an
 | `/stroi:plan-fast <ask>` | Small, well-understood changes. Concise inline plan, low pushback, asks only on a rule conflict or ambiguity. |
 | `/stroi:plan-big <goal>` | Complex work. Orchestrated Planner→Generator→Evaluator with a living plan, parallel read-only exploration, sequential dev, independent validation + adversarial review, fixup loop. Resumable across compaction. |
 | `/stroi:verify [scope]` | Command-agnostic verification: detects tooling, runs build/typecheck/lint/test/security/diff. Silent on pass. |
-| `/stroi:analyze [scope]` | Generate/refresh a scoped `tspec.md` — agent-optimized codebase knowledge, loaded just-in-time. |
+| `/stroi:analyze [scope]` | Generate/refresh a scoped `CLAUDE.md` map block — agent-optimized codebase knowledge, loaded just-in-time. |
 | `/stroi:learn "<rule>"` | Ratchet a lesson into a rule (project or global), with an escalation ladder. `--review` reflects on the session. |
 
 ### Agents (spawned by `plan-big`)
@@ -52,26 +52,31 @@ planner/developer/reviewer, `medium` for explorer/validator.
 ### Hooks
 - **Safety guard** (PreToolUse/Bash) — deterministically blocks catastrophic commands
   (`rm -rf /`, force-push, `mkfs`, `dd`, a DB client running `DROP TABLE`, …). Tight by design.
-- **tspec staleness** (PostToolUse + SessionStart) — flags scopes whose `tspec.md` lags behind
-  code changes. Detect-only; silent when clean.
+- **CLAUDE.md map staleness** (PostToolUse + SessionStart) — flags scopes whose `CLAUDE.md` map
+  block lags behind code changes. Detect-only; silent when clean.
 - **plan-big handoff** (PreCompact) — snapshots `.stroi/RESUME` so a long run survives compaction.
 
 ### Docs research (Context7)
 `stroi` bundles the Context7 MCP server. `/stroi:analyze` records each scope's key libraries →
-Context7 IDs / doc URLs in the tspec's `Dependencies & Docs`; the planner and developer **consult
-current docs before using version-sensitive APIs**, falling back to WebFetch if Context7 is down.
+Context7 IDs / doc URLs in the `CLAUDE.md` map's `Dependencies & Docs`; the planner and developer
+**consult current docs before using version-sensitive APIs**, falling back to WebFetch if Context7
+is down.
 
-## tspec.md — scoped codebase knowledge
+## CLAUDE.md — scoped codebase knowledge
 
-`tspec.md` files describe the codebase for the agent (CLAUDE.md holds the *rules*; tspec holds the
-*description*). They are scoped and DRY:
+Each scope's `CLAUDE.md` carries both the *rules* (a short hand-maintained checklist) **and** a
+generated **stroi map block** — an agent-optimized *description* of the scope (architecture, entry
+points, conventions, dependencies + docs). `/stroi:analyze` owns only the region between the
+`<!-- stroi:map:start -->` / `<!-- stroi:map:end -->` markers; everything else is yours and is
+preserved across refreshes. Claude Code's own loading makes this scoped and DRY:
 
-- A **root** `tspec.md` (codebase-wide facts) is `@`-imported by the root `CLAUDE.md` → always loaded.
-- A **leaf** `tspec.md` per app/package holds only folder-specific facts → loaded just-in-time when
-  you work in that scope (via that scope's nested `CLAUDE.md`).
+- The **root** `CLAUDE.md` (codebase-wide facts) is always loaded → keep its map tight.
+- A **leaf** `CLAUDE.md` per app/package holds only folder-specific facts → loaded just-in-time
+  when you work in that subtree.
 
 ### Linking a skill to a scope (manual — no command)
-Open the scope's `tspec.md` and add a skill ID under `## Relevant Skills`, one per line:
+Open the scope's `CLAUDE.md` and add a skill ID under `## Relevant Skills` (outside the map
+markers), one per line:
 
 ```md
 ## Relevant Skills
@@ -79,17 +84,19 @@ Open the scope's `tspec.md` and add a skill ID under `## Relevant Skills`, one p
 - my-rn-a11y-checks
 ```
 
-Because the tspec loads only in-scope, those skills are applied automatically during development,
-verification, and review **in that app and nowhere else**. Use `## Code Review` in the same file
-for scope-specific review notes. `/stroi:analyze` preserves both blocks across refreshes.
+Because the `CLAUDE.md` loads only in-scope, those skills are applied automatically during
+development, verification, and review **in that app and nowhere else**. Use `## Code Review` in the
+same file for scope-specific review notes. `/stroi:analyze` never touches anything outside the map
+markers, so both blocks survive every refresh.
 
 ## Runtime artifacts (written into the consuming project)
 - `.stroi/plans/<slug>.plan.md` — the living plan for a `plan-big` run (with `## Task Status`).
 - `.stroi/RESUME` — resume pointer written by the PreCompact hook.
 - `.stroi/dirty.log` — touched-path log feeding staleness detection.
-- `<scope>/tspec.md` — the codebase maps.
 
-Add `.stroi/` to your project's `.gitignore` (or commit the plans/tspecs if you want them shared).
+The codebase maps live in each scope's `CLAUDE.md` (the stroi map block), not under `.stroi/` —
+commit them as you would any `CLAUDE.md`. Add `.stroi/` to your project's `.gitignore` (or commit
+the plans there too if you want them shared).
 
 ## Philosophy
 This harness is deliberately small. Add to it only when you hit a real, repeated need — and use

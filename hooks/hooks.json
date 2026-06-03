@@ -19,10 +19,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/tspec-dirty.sh\""
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/map-dirty.sh\""
           }
         ],
-        "description": "stroi: record touched file paths so tspec staleness can be detected"
+        "description": "stroi: record touched file paths so CLAUDE.md map staleness can be detected"
       }
     ],
     "SessionStart": [
@@ -30,10 +30,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/tspec-stale.sh\""
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/map-stale.sh\""
           }
         ],
-        "description": "stroi: flag scopes whose tspec.md is older than code changed under it (silent when clean)"
+        "description": "stroi: flag scopes whose CLAUDE.md map is older than code changed under it (silent when clean)"
       }
     ],
     "PreCompact": [
