@@ -6,7 +6,7 @@
 
 cat >/dev/null 2>&1 || true   # drain stdin
 proj="${CLAUDE_PROJECT_DIR:-$PWD}"
-plans="$proj/.stroi/plans"
+plans="$proj/.claude/stroi/plans"
 [ -d "$plans" ] || exit 0
 
 # Find the most-recently-modified plan that still has an unchecked task "- [ ]".
@@ -20,7 +20,7 @@ done
 
 # No in-progress plan -> clear any stale pointer and exit.
 if [ -z "$newest" ]; then
-  rm -f "$proj/.stroi/RESUME" 2>/dev/null || true
+  rm -f "$proj/.claude/stroi/RESUME" 2>/dev/null || true
   exit 0
 fi
 
@@ -29,5 +29,5 @@ next="$(grep -nE '^[[:space:]]*-[[:space:]]*\[[[:space:]]\]' "$newest" 2>/dev/nu
   echo "PLAN: ${newest#$proj/}"
   echo "NEXT: ${next}"
   echo "NOTE: resume /stroi:plan-big from the first unchecked task in PLAN."
-} > "$proj/.stroi/RESUME" 2>/dev/null || true
+} > "$proj/.claude/stroi/RESUME" 2>/dev/null || true
 exit 0

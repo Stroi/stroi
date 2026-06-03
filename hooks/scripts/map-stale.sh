@@ -35,7 +35,7 @@ for dir in "${dirs[@]}"; do
   newer="$(find "$dir" "${prune[@]}" \
              -type f -newer "$claudemd" \
              ! -name 'CLAUDE.md' \
-             ! -path '*/.stroi/*' ! -path '*/.git/*' \
+             ! -path '*/.claude/*' ! -path '*/.git/*' \
              ! -path '*/node_modules/*' ! -path '*/dist/*' ! -path '*/build/*' \
              -print 2>/dev/null | head -n1)"
   [ -n "$newer" ] && stale="$stale ${dir#./}"

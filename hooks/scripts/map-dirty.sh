@@ -12,11 +12,11 @@ fp="$(printf '%s' "$payload" | sed -n 's/.*"file_path"[[:space:]]*:[[:space:]]*"
 [ -z "$fp" ] && exit 0
 
 # Ignore the harness's own artifacts and per-scope docs to avoid self-triggering
-# (editing CLAUDE.md / its map block is not code drift).
+# (editing CLAUDE.md / its map block, or anything under .claude/, is not code drift).
 case "$fp" in
-  */.stroi/*|*/CLAUDE.md|*.stroi/*) exit 0 ;;
+  */.claude/*|*/CLAUDE.md) exit 0 ;;
 esac
 
-mkdir -p "$proj/.stroi" 2>/dev/null || exit 0
-printf '%s\n' "$fp" >> "$proj/.stroi/dirty.log" 2>/dev/null || true
+mkdir -p "$proj/.claude/stroi" 2>/dev/null || exit 0
+printf '%s\n' "$fp" >> "$proj/.claude/stroi/dirty.log" 2>/dev/null || true
 exit 0

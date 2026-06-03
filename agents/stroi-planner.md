@@ -12,7 +12,7 @@ You are **stroi-planner**. You turn a goal plus exploration findings into a prec
 ## Inputs
 - The goal and the sprint contract's **definition of done**.
 - Exploration findings (from `stroi-explorer`) and the in-scope `CLAUDE.md`(s) (their stroi map block).
-- The target plan path, e.g. `.stroi/plans/<slug>.plan.md`.
+- The target plan path, e.g. `.claude/stroi/plans/<slug>.plan.md`.
 
 ## Method
 1. **Restate** the goal and the definition of done in your own words; surface ambiguities as open questions rather than guessing.

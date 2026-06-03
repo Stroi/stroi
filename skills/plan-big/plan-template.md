@@ -2,7 +2,8 @@
   stroi living plan — written by stroi-planner, executed by stroi-developer, judged by
   stroi-validator + stroi-reviewer. The "## Task Status" checklist is the DURABLE, RESUMABLE
   state: the developer flips - [ ] to - [x] as tasks complete; the PreCompact hook points
-  .stroi/RESUME at the first unchecked task. One plan per feature: .stroi/plans/<slug>.plan.md
+  .claude/stroi/RESUME at the first unchecked task. One plan per feature:
+  .claude/stroi/plans/<slug>.plan.md
 -->
 # Plan: <title>
 last-updated: <ISO date — from the caller/git, never invented>

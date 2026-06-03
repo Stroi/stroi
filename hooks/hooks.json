@@ -46,6 +46,17 @@
         ],
         "description": "stroi: snapshot a resume pointer for an in-progress plan-big run before compaction"
       }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/cleanup.sh\""
+          }
+        ],
+        "description": "stroi: clean up finished plan-big runtime (RESUME + completed plans) at session end; keeps in-progress plans"
+      }
     ]
   }
 }

@@ -52,7 +52,7 @@ Apply exactly one case:
    block, preserving all existing content: place it after any top-of-file rules and before
    `## Relevant Skills` / `## Code Review` if those exist, else append it. Never rewrite hand content.
 
-Then clear this scope's entries from `.stroi/dirty.log` (the staleness marker).
+Then clear this scope's entries from `.claude/stroi/dirty.log` (the staleness marker).
 
 ## Notes
 - **The map block is the only thing you own.** Never touch the rules region or the hand-maintained

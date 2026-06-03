@@ -5,6 +5,7 @@
 # Node (only present if a hook/tool ever needs deps; none bundled today)
 node_modules/
 
-# stroi runtime artifacts (written into a *consuming* project, never this repo —
-# ignored here only in case the harness is exercised against hanz itself)
-.stroi/
+# stroi runtime artifacts (plans, RESUME, dirty.log) — written into a *consuming*
+# project under .claude/stroi/, never committed; ignored here too in case the harness
+# is exercised against this repo itself.
+.claude/stroi/
