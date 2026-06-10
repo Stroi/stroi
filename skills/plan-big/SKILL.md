@@ -1,6 +1,6 @@
 ---
 name: plan-big
-description: Orchestrated planning + execution for complex, multi-component work. Writes a living plan, STOPS for your approval, then runs Planner→Generator→Evaluator with sequential development, independent validation + adversarial review, and a fixup loop. Resumable across compaction. Use for features/refactors that need design and coordination.
+description: Orchestrated planning + execution for complex, multi-component work. Writes a living plan, STOPS for your approval, then runs Planner→Generator→Evaluator — development advances checkpoint by checkpoint with a verify gate between each, then independent validation + adversarial review and a fixup loop. Resumable across compaction. Use for features/refactors that need design and coordination.
 ---
 
 # /stroi:plan-big — orchestrated planning & execution
@@ -13,10 +13,20 @@ and spawn `stroi-*` subagents via the Task tool. Development is **sequential**; 
 > plan) runs autonomously, but **execution does not**. After the plan is written you **stop and wait**
 > for the user to approve or edit it. Never spawn the developer or touch code before explicit approval.
 
-## Phase 0 — Resume check
-If `.claude/stroi/RESUME` exists, or a recent `.claude/stroi/plans/*.plan.md` has unchecked `- [ ]`
-tasks, offer to **resume** from the first incomplete task instead of starting over. (The PreCompact
-hook writes `.claude/stroi/RESUME`; the living plan's `## Task Status` is the durable state.)
+## Phase 0 — Resolve runtime, then resume check
+stroi's runtime lives **outside the repo**. Resolve it once and reuse it as `$STROI`:
+
+```bash
+echo "$HOME/.claude/stroi/$(printf '%s' "${CLAUDE_PROJECT_DIR:-$PWD}" | sed 's#[^A-Za-z0-9]#-#g')"
+```
+
+(Same formula as `hooks/scripts/_paths.sh` — keep them in sync.) All plan files and the RESUME
+pointer live under `$STROI/`; nothing stroi-written lands in the project tree.
+
+If `$STROI/RESUME` exists, or a recent `$STROI/plans/*.plan.md` has unchecked `- [ ]` tasks, offer
+to **resume**: find the first unchecked task, identify the **checkpoint** it belongs to, and
+re-enter the Phase 5 loop at that checkpoint instead of starting over. (The PreCompact hook writes
+`$STROI/RESUME`; the living plan's checkpoint tasks are the durable state.)
 
 ## Phase 1 — Sprint contract
 Clarify the goal and write an explicit **definition of done** up front. If the work is actually
@@ -27,23 +37,41 @@ Spawn up to 3 `stroi-explorer` agents (seeded by in-scope `CLAUDE.md` map blocks
 involved. They only read. Collect their reports.
 
 ## Phase 3 — Plan (living doc)
-Spawn `stroi-planner` to write `.claude/stroi/plans/<slug>.plan.md` (goal & definition of done, NOT
-building, patterns to mirror, Dependencies & Docs, a `## Task Status` checklist, validation
-commands, review rubric). The planner researches docs (Context7) before designing against APIs.
-Use `plan-template.md` as the structure.
+Spawn `stroi-planner` to write `$STROI/plans/<slug>.plan.md` in the **Dashboard** format of
+`plan-template.md`: header table, Not Building, Reuse (patterns to copy), Deps & Docs, then
+**`## 🚦 Checkpoints`** — tasks grouped into checkpoints (1–4 tasks each), every checkpoint
+carrying a fast `verify:` smoke command — plus Final Validation and a review rubric. Pass the
+planner the resolved `$STROI/plans/<slug>.plan.md` path. The planner researches docs (Context7)
+before designing against APIs.
 
 ## Phase 4 — Approve (STOP — wait for the user)
-Present the plan: its path plus a concise summary (goal, definition of done, the `## Task Status`
-task list, validation commands). Then **end your turn and wait.** Do **not** proceed to development
-until the user explicitly approves.
+Present the plan: its path plus a concise summary (goal, definition of done, the **checkpoints**
+with their tasks and verify gates). Then **end your turn and wait.** Do **not** proceed to
+development until the user explicitly approves.
 - If the user requests changes, revise the plan (re-spawn `stroi-planner` or edit the file
   directly), re-present, and wait again. Loop until approved.
 - Only an explicit go-ahead unlocks Phase 5.
 
-## Phase 5 — Develop (sequential)
-Spawn `stroi-developer` to work the **approved** plan task-by-task with a per-task validation loop,
-applying the scope's `CLAUDE.md` `Relevant Skills`, and flipping `## Task Status` to `- [x]` as it
-goes. It reports back; it does **not** self-grade.
+## Phase 5 — Develop (checkpoint loop, sequential)
+Work the **approved** plan one **checkpoint** at a time. For each `### CP` in order:
+
+1. **Build it.** Spawn `stroi-developer` scoped to *this checkpoint's tasks only*, applying the
+   scope's `CLAUDE.md` `Relevant Skills`. It implements, self-checks each task, flips that task's
+   `- [ ]` → `- [x]`, and reports back. It does **not** self-grade the checkpoint.
+2. **Gate it (independent of the developer).** *You*, the orchestrator, run the checkpoint's
+   `verify:` command via Bash — fresh, not the developer's say-so. This is the gate.
+3. **Green → advance.** Print one status line and move to the next checkpoint automatically:
+   `✓ CP<k> <name> — tasks <ids> done, gate \`<cmd>\` green`. No pause; no waiting.
+4. **Red → fix before advancing.** Print `✗ CP<k> <name> — gate red: <short reason>`, re-spawn
+   `stroi-developer` with the failure output to fix *this* checkpoint, then re-run the gate.
+   Repeat until green or clearly plateaued (then stop and surface the blocker to the user).
+   **Never carry a broken checkpoint forward.**
+
+This per-checkpoint gate is a fast smoke test that catches breakage early; the thorough,
+independent judgment still happens once over the whole change in Phase 6.
+
+> **Fallback.** If the plan has no `### CP` sections (an old or hand-written plan), treat the whole
+> task list as a single checkpoint gated by the plan's Final Validation commands.
 
 ## Phase 6 — Validate + review (parallel, read-only, INDEPENDENT)
 Spawn together, in fresh context separate from the developer:
@@ -61,13 +89,14 @@ then clear its dirty marker.
 
 ## Phase 9 — Close
 Append outcomes (what worked / what failed) to the plan, then **delete the finished run's**
-`.claude/stroi/plans/<slug>.plan.md` and `.claude/stroi/RESUME` — the work is done and these are
-throwaway. (The SessionEnd hook also clears completed plans + RESUME as a safety net; in-progress
-plans are kept for resume.) Surface Ratchet candidates for `/stroi:learn` (conventions you saw
-violated, corrections repeated).
+`$STROI/plans/<slug>.plan.md` and `$STROI/RESUME` — the work is done and these are throwaway, and
+they live outside the repo so nothing lingers in the tree. (The SessionEnd hook also clears
+completed plans + RESUME as a safety net; in-progress plans are kept for resume.) Surface Ratchet
+candidates for `/stroi:learn` (conventions you saw violated, corrections repeated).
 
 ## Rules
 - **Approval before execution.** Never begin development before the user approves the plan (Phase 4).
-- Decompose so each unit is independently verifiable; preserve coherence by doing one unit at a time.
+- Decompose so each unit is independently verifiable; preserve coherence by doing one checkpoint at a time.
+- **Gate every checkpoint yourself** before advancing — the developer never grades its own checkpoint, and a red gate is fixed, not carried forward.
 - Never let the generator grade itself — validation and review are **separate** agents.
 - Parallelism is for READ-ONLY work only. Do not run parallel writers (shared-tree conflicts).

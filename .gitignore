@@ -5,7 +5,7 @@
 # Node (only present if a hook/tool ever needs deps; none bundled today)
 node_modules/
 
-# stroi runtime artifacts (plans, RESUME, dirty.log) — written into a *consuming*
-# project under .claude/stroi/, never committed; ignored here too in case the harness
-# is exercised against this repo itself.
+# stroi runtime (plans, RESUME, dirty.log) now lives OUTSIDE the repo, under
+# ~/.claude/stroi/<dashified-project-path>/ — so nothing needs ignoring here anymore.
+# This entry is kept defensively to catch artifacts from older stroi versions or a manual run.
 .claude/stroi/

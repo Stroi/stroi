@@ -13,8 +13,9 @@ proceed — minimal ceremony, low pushback. `$ARGUMENTS` = the change request.
 2. **Quick rule check** — read the in-scope `CLAUDE.md` (its rules and stroi map block) and scan
    for obvious conflicts with existing patterns. If the change touches a version-sensitive library
    API, do a quick docs check via the map's `Dependencies & Docs` pointers (Context7 → WebFetch).
-3. **Concise plan** — a short ordered list of edits (files + what changes). No living-plan file,
-   no orchestration, no subagents.
+3. **Concise plan** — present it inline in the shared dashboard vocabulary: a one-line
+   `Goal:` / `Done:` header, then a short `- [ ]` checklist of edits (file + what changes).
+   Terse, scannable. No living-plan file, no orchestration, no subagents, no checkpoint loop.
 4. **Approve (STOP)** — present the plan and **wait** for the user to approve or edit it. Do not
    touch code before approval. (Unlike `plan-big`, this is an inline plan — no plan file.)
 5. **Proceed** — on approval, implement directly (subject to normal permissions), matching

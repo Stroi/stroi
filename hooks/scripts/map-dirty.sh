@@ -4,7 +4,8 @@
 # Observational only: ALWAYS exits 0, never blocks.
 
 payload="$(cat 2>/dev/null || true)"
-proj="${CLAUDE_PROJECT_DIR:-$PWD}"
+# shellcheck source=_paths.sh
+. "$(dirname "${BASH_SOURCE[0]}")/_paths.sh" 2>/dev/null || exit 0
 
 # Extract the edited file path from the hook payload (no jq/python dependency —
 # file paths effectively never contain a double-quote).
@@ -17,6 +18,5 @@ case "$fp" in
   */.claude/*|*/CLAUDE.md) exit 0 ;;
 esac
 
-mkdir -p "$proj/.claude/stroi" 2>/dev/null || exit 0
-printf '%s\n' "$fp" >> "$proj/.claude/stroi/dirty.log" 2>/dev/null || true
+printf '%s\n' "$fp" >> "$(stroi_runtime_dir)/dirty.log" 2>/dev/null || true
 exit 0

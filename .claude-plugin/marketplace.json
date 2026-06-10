@@ -11,7 +11,7 @@
       "name": "stroi",
       "source": "./",
       "description": "Lean software-development harness: tiered planning, command-agnostic verification, scoped codebase maps in CLAUDE.md with just-in-time docs, and Ratchet-style learning. Harness mechanism only — no domain skills bundled.",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "license": "MIT",
       "category": "workflow",
       "tags": [

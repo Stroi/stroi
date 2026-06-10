@@ -5,8 +5,10 @@
 # hook only writes a tiny pointer — it does not author a summary.
 
 cat >/dev/null 2>&1 || true   # drain stdin
-proj="${CLAUDE_PROJECT_DIR:-$PWD}"
-plans="$proj/.claude/stroi/plans"
+# shellcheck source=_paths.sh
+. "$(dirname "${BASH_SOURCE[0]}")/_paths.sh" 2>/dev/null || exit 0
+runtime="$(stroi_runtime_dir)"
+plans="$runtime/plans"
 [ -d "$plans" ] || exit 0
 
 # Find the most-recently-modified plan that still has an unchecked task "- [ ]".
@@ -20,14 +22,14 @@ done
 
 # No in-progress plan -> clear any stale pointer and exit.
 if [ -z "$newest" ]; then
-  rm -f "$proj/.claude/stroi/RESUME" 2>/dev/null || true
+  rm -f "$runtime/RESUME" 2>/dev/null || true
   exit 0
 fi
 
 next="$(grep -nE '^[[:space:]]*-[[:space:]]*\[[[:space:]]\]' "$newest" 2>/dev/null | head -n1)"
 {
-  echo "PLAN: ${newest#$proj/}"
+  echo "PLAN: ${newest}"
   echo "NEXT: ${next}"
   echo "NOTE: resume /stroi:plan-big from the first unchecked task in PLAN."
-} > "$proj/.claude/stroi/RESUME" 2>/dev/null || true
+} > "$runtime/RESUME" 2>/dev/null || true
 exit 0

@@ -38,14 +38,15 @@ Then confirm: `/stroi:plan-fast`, `/stroi:plan-big`, `/stroi:verify`, `/stroi:an
 | Command | Use it for |
 |---|---|
 | `/stroi:plan-fast <ask>` | Small, well-understood changes. Concise inline plan, **presented for your approval** before editing. Low pushback. |
-| `/stroi:plan-big <goal>` | Complex work. Writes a living plan and **waits for your approval/edits** (like plan mode) before building. Then Planner→Generator→Evaluator: parallel read-only exploration, sequential dev, independent validation + adversarial review, fixup loop. Resumable across compaction. |
+| `/stroi:plan-big <goal>` | Complex work. Writes a living plan and **waits for your approval/edits** (like plan mode) before building. Then Planner→Generator→Evaluator: parallel read-only exploration, then **checkpoint-by-checkpoint dev** — each checkpoint gated by a verify smoke test before advancing — then independent validation + adversarial review, fixup loop. Resumable across compaction. |
 | `/stroi:verify [scope]` | Command-agnostic verification: detects tooling, runs build/typecheck/lint/test/security/diff. Silent on pass. |
 | `/stroi:analyze [scope]` | Generate/refresh a scoped `CLAUDE.md` map block — agent-optimized codebase knowledge, loaded just-in-time. |
 | `/stroi:learn "<rule>"` | Ratchet a lesson into a rule (project or global), with an escalation ladder. `--review` reflects on the session. |
 
 ### Agents (spawned by `plan-big`)
-`stroi-explorer` (read-only mapping) · `stroi-planner` (living plan) · `stroi-developer`
-(sequential implementation) · `stroi-validator` (runs verify; can't edit) · `stroi-reviewer`
+`stroi-explorer` (read-only mapping) · `stroi-planner` (living plan, tasks grouped into
+checkpoints) · `stroi-developer` (implements one checkpoint per spawn) · `stroi-validator` (runs
+verify; can't edit) · `stroi-reviewer`
 (adversarial review + standing security dimension; can't edit). All on `opus`; effort `high` for
 planner/developer/reviewer, `medium` for explorer/validator.
 
@@ -54,8 +55,8 @@ planner/developer/reviewer, `medium` for explorer/validator.
   (`rm -rf /`, force-push, `mkfs`, `dd`, a DB client running `DROP TABLE`, …). Tight by design.
 - **CLAUDE.md map staleness** (PostToolUse + SessionStart) — flags scopes whose `CLAUDE.md` map
   block lags behind code changes. Detect-only; silent when clean.
-- **plan-big handoff** (PreCompact) — snapshots `.claude/stroi/RESUME` so a long run survives compaction.
-- **plan-big cleanup** (SessionEnd) — clears `.claude/stroi/RESUME` and completed plans at session
+- **plan-big handoff** (PreCompact) — snapshots a `RESUME` pointer so a long run survives compaction.
+- **plan-big cleanup** (SessionEnd) — clears `RESUME` and completed plans at session
   end so finished runs don't linger; in-progress plans are kept for resume.
 
 ### Docs research (Context7)
@@ -91,15 +92,17 @@ development, verification, and review **in that app and nowhere else**. Use `## 
 same file for scope-specific review notes. `/stroi:analyze` never touches anything outside the map
 markers, so both blocks survive every refresh.
 
-## Runtime artifacts (written into the consuming project)
-All stroi runtime lives under `.claude/stroi/` — gitignored and auto-cleaned, never part of the codebase:
-- `.claude/stroi/plans/<slug>.plan.md` — the living plan for a `plan-big` run (with `## Task Status`).
-  Deleted on successful close; the SessionEnd hook also clears completed plans.
-- `.claude/stroi/RESUME` — resume pointer written by the PreCompact hook; cleared at session end.
-- `.claude/stroi/dirty.log` — touched-path log feeding staleness detection.
+## Runtime artifacts (kept outside your repo)
+All stroi runtime lives **outside the project tree**, under
+`~/.claude/stroi/<dashified-project-path>/` — so plans never show in `git status`, never need a
+`.gitignore` entry, and can't be committed by accident. Auto-cleaned, never part of the codebase:
+- `…/plans/<slug>.plan.md` — the living Dashboard plan for a `plan-big` run (checkpoints + `- [ ]`
+  tasks). Deleted on successful close; the SessionEnd hook also clears completed plans.
+- `…/RESUME` — resume pointer written by the PreCompact hook; cleared at session end.
+- `…/dirty.log` — touched-path log.
 
 The codebase maps are the exception: they live in each scope's committed `CLAUDE.md` (the stroi map
-block), not under `.claude/stroi/`. Add `.claude/stroi/` to your project's `.gitignore`.
+block) — that is the *only* stroi artifact that belongs in your repo. No `.gitignore` changes needed.
 
 ## Philosophy
 This harness is deliberately small. Add to it only when you hit a real, repeated need — and use

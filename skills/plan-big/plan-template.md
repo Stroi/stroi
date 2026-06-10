@@ -1,31 +1,54 @@
 <!--
-  stroi living plan — written by stroi-planner, executed by stroi-developer, judged by
-  stroi-validator + stroi-reviewer. The "## Task Status" checklist is the DURABLE, RESUMABLE
-  state: the developer flips - [ ] to - [x] as tasks complete; the PreCompact hook points
-  .claude/stroi/RESUME at the first unchecked task. One plan per feature:
-  .claude/stroi/plans/<slug>.plan.md
+  stroi living plan — DASHBOARD format. Written by stroi-planner, executed checkpoint-by-
+  checkpoint by stroi-developer, gated by the orchestrator after each checkpoint, then judged
+  by stroi-validator + stroi-reviewer. Lives OUTSIDE the repo at
+    $STROI/plans/<slug>.plan.md   (STROI = ~/.claude/stroi/<dashified-project-dir>)
+  one file per feature.
+
+  DURABLE STATE = the "- [ ]" task lines under each checkpoint. The developer flips - [ ] to
+  - [x] as tasks complete; the PreCompact hook points $STROI/RESUME at the first unchecked task.
+  Keep tasks as a "- [ ]" LIST (never a table row) — the hooks grep for exactly that pattern.
+
+  CHECKPOINTS are the gate boundaries: each "### CP<n>" groups 1–4 related tasks plus one fast
+  `verify:` smoke command the orchestrator runs (itself) before advancing to the next checkpoint.
+
+  Only CHECKPOINT TASKS use "- [ ]". The Review Rubric uses plain "- " bullets on purpose — a
+  "- [ ]" there would read as an unfinished task and stop cleanup/handoff from ever closing the plan.
+
+  STYLE = caveman-terse. Tables and fragments over prose. No filler, no hedging.
 -->
-# Plan: <title>
-last-updated: <ISO date — from the caller/git, never invented>
+# 📐 <title>
 
-## Goal & Definition of Done
-<the goal, and the concrete, checkable conditions that mean "done">
+| Field | |
+| --- | --- |
+| Goal | <one-line goal> |
+| Done when | <concrete, checkable conditions> |
+| Scope | <N> files · <M> tasks · <K> checkpoints |
+| Risk | low / medium / high — <one clause why> |
+| Updated | <ISO date — from git/caller, never invented> |
 
-## NOT Building
-<explicit scope boundaries — what this plan deliberately excludes>
+## ⛔ Not Building
+- <explicit scope boundary> · <another>
 
-## Patterns to Mirror
-- `path` — <the existing pattern/utility to copy instead of inventing a new one>
+## ♻️ Reuse
+| Copy from | For |
+| --- | --- |
+| `path` | <existing pattern/utility to copy instead of inventing> |
 
-## Dependencies & Docs
-- `<lib>@<version>` → ctx7: `</org/lib>` (docs consulted: <url>)
+## 📦 Deps & Docs
+| Lib | Ver | Docs |
+| --- | --- | --- |
+| `<lib>` | <version> | ctx7 `</org/lib>` · <doc url consulted> |
 
-## Task Status
-- [ ] 1. <task> — files: `...`; mirror: `path`; verify: `<check>`
-- [ ] 2. ...
+## 🚦 Checkpoints — gate must be green to advance
+### CP1 · <milestone name>   verify: `<fast smoke cmd>`
+- [ ] 1. <task> — `file` · reuse `path`
+- [ ] 2. <task> — `file`
+### CP2 · <milestone name>   verify: `<fast smoke cmd>`
+- [ ] 3. <task> — `file`
 
-## Validation Commands
-- build / typecheck / lint / test for this scope
+## 🧪 Final Validation
+build · typecheck · lint · test  — the full independent pass over the whole change
 
-## Review Rubric
-- <concrete pass/fail criteria the reviewer will judge against>
+## ⚖️ Review Rubric
+- <concrete pass/fail criterion the reviewer judges against>  (plain bullets — never `- [ ]`)
